@@ -1,2 +1,10 @@
-# char-level-shakespeare
-Compares various sequence models (rnn, cnn, transformer, and variants) on the shakespeare dataset.
+# Shakespeare Sequence Models
+
+Compare RNN, CNN, Transformer models on the Shakespeare dataset.
+
+Requirements:
+
+torch
+numpy
+matplotlib
+pandas
