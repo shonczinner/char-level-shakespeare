@@ -8,6 +8,7 @@ from models import get_model
 from utils.config import Config
 from utils.plot_metrics import plot_metrics
 import pandas as pd
+import time
 
 
 class Trainer:
@@ -57,7 +58,7 @@ class Trainer:
 
 
         
-        self.train_losses, self.val_losses, self.train_accs, self.val_accs = [], [], [], []
+        self.train_losses, self.val_losses, self.train_accs, self.val_accs,self.compute = [], [], [], [],[]
         self.load_model()
 
         
@@ -73,6 +74,7 @@ class Trainer:
             self.val_losses = metrics["val_losses"].tolist()
             self.train_accs = metrics["train_accs"].tolist()
             self.val_accs = metrics["val_accs"].tolist()
+            self.compute = metrics["compute"].tolist()
 
             print("Model loaded from",self.model_path)
 
@@ -82,7 +84,8 @@ class Trainer:
             "train_losses": self.train_losses,
             "val_losses": self.val_losses,
             "train_accs": self.train_accs,
-            "val_accs": self.val_accs
+            "val_accs": self.val_accs,
+            "compute":self.compute
             })
         metrics.to_csv(os.path.join(self.save_path, "metrics.csv"), index=False)
 
@@ -97,6 +100,7 @@ class Trainer:
         
         total_loss, total_correct, total_tokens = 0, 0, 0
         with torch.set_grad_enabled(train):
+            start = time.time()
             for x, y in loader:
                 if train:
                     self.optimizer.zero_grad()
@@ -119,25 +123,35 @@ class Trainer:
                 preds = logits.argmax(dim=-1)
                 total_correct += (preds == y).sum().item()
                 total_tokens += y.numel()
-        return total_loss / len(loader), total_correct / total_tokens
+        end = time.time()
+        return total_loss / len(loader), total_correct / total_tokens, end-start
 
     def train(self):
+        if len(self.compute)>0:
+            compute = self.compute[-1]
+        else:
+            compute = 0
         for epoch in range(self.config.epochs):
-            train_loss, train_acc = self.run_epoch(self.train_loader,True)
-            val_loss, val_acc = self.run_epoch(self.val_loader,False)
-            print(f"Epoch {epoch+1} | Train Loss: {train_loss:.4f} | Train Accuracy: {train_acc:.4f}")
+            train_loss, train_acc,compute_i = self.run_epoch(self.train_loader,True)
+            val_loss, val_acc,_ = self.run_epoch(self.val_loader,False)
+            print(f"Epoch {epoch+1} | Train Loss: {train_loss:.4f} | Train Accuracy: {train_acc:.4f} | Time: {compute_i:.4f} seconds")
             print(f" Val Loss: {val_loss:.4f} | Val Accuracy: {val_acc:.4f}")
             self.train_losses.append(train_loss)
             self.val_losses.append(val_loss)
             self.train_accs.append(train_acc)
             self.val_accs.append(val_acc)
+            compute = compute+compute_i
+            self.compute.append(compute)
 
         self.save_model()
-        plot_metrics(self.train_losses, self.val_losses, self.save_path, "Loss")
-        plot_metrics(self.train_accs, self.val_accs, self.save_path, "Accuracy")
+        plot_metrics(None, self.train_losses, self.val_losses, self.save_path, "Loss")
+        plot_metrics(None, self.train_accs, self.val_accs, self.save_path, "Accuracy")
+        plot_metrics(self.compute, self.train_losses, self.val_losses, self.save_path, "Loss", "Compute in seconds")
+        plot_metrics(self.compute, self.train_accs, self.val_accs, self.save_path, "Accuracy", "Compute in seconds")
+
 
     def evaluate(self):
-        test_loss, test_acc = self.run_epoch(self.test_loader,False)
+        test_loss, test_acc,_ = self.run_epoch(self.test_loader,False)
         print(f"Test Loss: {test_loss:.4f} | Test Accuracy: {test_acc:.4f}")
 
 def parse_args():

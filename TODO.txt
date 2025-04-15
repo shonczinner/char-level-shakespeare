@@ -1,5 +1,4 @@
 TODO:
- Add compute time to metrics
  Add analysis which compares performance across all models by loss/accuracy vs. Epoch/Compute time
  Add LSTM, GRU, 
  Add GRU w. skip connections from input and to output, MinGRU, TCN, TrellisNet
