@@ -11,7 +11,7 @@ class TransformerModel(nn.Module):
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=config.hidden_dim,
-            nhead=1,
+            nhead=config.nhead,
             dropout=0,
             batch_first=True
         )

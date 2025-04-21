@@ -20,18 +20,21 @@ class CharTokenizer:
     def decode(self, tokens):
         return ''.join([self.itos[i] for i in tokens])
 
-    def save(self, folder_path):
-        os.makedirs(folder_path, exist_ok=True)
+    def save(self, path):
         tokenizer_data = {
             "chars": self.chars
         }
-        with open(os.path.join(folder_path, "tokenizer.json"), "w", encoding="utf-8") as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(tokenizer_data, f, ensure_ascii=False, indent=4)
 
+        print("Tokenizer saved to", path)
+
     @classmethod
-    def load(cls, folder_path):
-        with open(os.path.join(folder_path, "tokenizer.json"), "r", encoding="utf-8") as f:
+    def load(cls, path):
+        with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
+        
+        print("Tokenizer loaded from", path)
         tokenizer = cls()
         tokenizer.chars = data["chars"]
         tokenizer.stoi = {ch: i for i, ch in enumerate(tokenizer.chars)}
