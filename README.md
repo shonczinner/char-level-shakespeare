@@ -6,7 +6,7 @@ Compare RNN, GRU, LSTM, CNN, Transformer models for generating shakespeare one c
 ![Accuracy comparison by epoch](summary/loss_vs_epoch.png)
 
 
-Generation sample (from RNN):
+Generation sample from RNN with prompt "ROMEO:",
 
     ROMEO:
     I am love's peace than his pensiat,
