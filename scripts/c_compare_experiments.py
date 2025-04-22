@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 
-from utils.constants import SAVE_PATH
+from utils.constants import SAVE_PATH, SUMMARY_PATH
 
 def compare_experiments(model_types):
     # Generate color map
@@ -51,6 +51,7 @@ def compare_experiments(model_types):
         ax_acc_compute.plot(compute, val_accs, label=f'{model_type} - Val', linestyle='--', color=color)
 
     # Finalize and save each plot
+    os.makedirs(SUMMARY_PATH)
     for ax, title, xlabel, ylabel, filename in [
         (ax_loss_epoch, "Loss vs Epoch", "Epoch", "Loss", "loss_vs_epoch.png"),
         (ax_acc_epoch, "Accuracy vs Epoch", "Epoch", "Accuracy", "acc_vs_epoch.png"),
@@ -63,7 +64,7 @@ def compare_experiments(model_types):
         ax.legend()
         ax.grid(True, linestyle='--', alpha=0.5)
         ax.figure.tight_layout()
-        ax.figure.savefig(filename)
+        ax.figure.savefig(os.path.join(SUMMARY_PATH,filename))
         plt.close(ax.figure)
 
 if __name__ == "__main__":

@@ -53,6 +53,8 @@ def main():
 
     model_path = os.path.join(model_folder,"model.pth")
     model.load_state_dict(torch.load(model_path, map_location=device))
+    print("Model loaded from:",model_path)
+
     model = model.to(device)
 
     # Sample

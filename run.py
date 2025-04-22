@@ -1,4 +1,5 @@
 import argparse
+import gc
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train sequence models on Shakespeare data.")
@@ -59,6 +60,11 @@ if __name__=="__main__":
         trainer = Trainer(dataset,config, device)
         trainer.train()
         trainer.evaluate()
+        
+        # Clear CUDA memory
+        del trainer
+        torch.cuda.empty_cache()
+        gc.collect()
 
     # plot all metrics
     compare_experiments(model_types)
