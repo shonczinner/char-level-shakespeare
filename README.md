@@ -1,5 +1,9 @@
 # Shakespeare Sequence Models
 
+Test the RNN model here:
+
+https://shonczinner.github.io/shakespeare-generator/
+
 Compare RNN, GRU, LSTM, CNN, Transformer models for generating shakespeare one character at a time by training on the Shakespeare dataset.
 
 ![Accuracy comparison by compute](summary/loss_vs_compute.png)
