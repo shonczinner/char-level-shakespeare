@@ -17,9 +17,10 @@ def sample(model, tokenizer, config, device, start_text="ROMEO:", max_length=300
     hidden = None
     for _ in range(max_length):
         input_chunk = generated[:, -config.max_seq_len:]  # keep input size bounded
-        if config.model_type == 'rnn':
-            #technicially could do: logits[:,-1:,:], hidden = model(input_chunk, hidden)
-            logits, hidden = model(input_chunk, hidden)
+        if config.model_type in ['rnn','gru','lstm','mingru','rnn2']:
+            #technicially could do: logits, hidden = model(input_chunk[:,-1:], hidden)
+            logits, hidden = model(input_chunk[:,-1:], hidden)
+            #logits, hidden = model(input_chunk, hidden)
         else:
             logits = model(input_chunk)
 

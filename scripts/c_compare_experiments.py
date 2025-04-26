@@ -51,7 +51,7 @@ def compare_experiments(model_types):
         ax_acc_compute.plot(compute, val_accs, label=f'{model_type} - Val', linestyle='--', color=color)
 
     # Finalize and save each plot
-    os.makedirs(SUMMARY_PATH)
+    os.makedirs(SUMMARY_PATH, exist_ok=True)
     for ax, title, xlabel, ylabel, filename in [
         (ax_loss_epoch, "Loss vs Epoch", "Epoch", "Loss", "loss_vs_epoch.png"),
         (ax_acc_epoch, "Accuracy vs Epoch", "Epoch", "Accuracy", "acc_vs_epoch.png"),
