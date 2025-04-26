@@ -1,12 +1,16 @@
 # Shakespeare Sequence Models
 
-Compare RNN, CNN, Transformer models for generating shakespeare one character at a time by training on the Shakespeare dataset.
+Test the RNN model here:
+
+https://shonczinner.github.io/shakespeare-generator/
+
+Compare RNN, GRU, LSTM, CNN, Transformer models for generating shakespeare one character at a time by training on the Shakespeare dataset.
 
 ![Accuracy comparison by compute](summary/loss_vs_compute.png)
 ![Accuracy comparison by epoch](summary/loss_vs_epoch.png)
 
 
-Generation sample (from RNN):
+Generation sample from RNN with prompt "ROMEO:",
 
     ROMEO:
     I am love's peace than his pensiat,
