@@ -3,7 +3,7 @@ import argparse
 from utils.tokenizer import CharTokenizer
 from utils.config import Config
 from models import get_model
-from utils.constants import (TOKENIZER_PATH,
+from constants import (TOKENIZER_PATH,
                              SAVE_PATH)
 
 

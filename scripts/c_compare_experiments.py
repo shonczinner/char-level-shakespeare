@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 
-from utils.constants import SAVE_PATH, SUMMARY_PATH
+from constants import SAVE_PATH, SUMMARY_PATH
 
 def compare_experiments(model_types):
     # Generate color map

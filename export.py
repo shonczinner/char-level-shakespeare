@@ -4,7 +4,7 @@ import os
 from models import get_model
 from utils.tokenizer import CharTokenizer
 from utils.config import Config
-from utils.constants import (PROCESSED_DATA_PATH,
+from constants import (PROCESSED_DATA_PATH,
                              SAVE_PATH,
                              TOKENIZER_PATH)
 

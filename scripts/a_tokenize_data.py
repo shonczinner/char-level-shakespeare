@@ -1,6 +1,6 @@
 import os
 from utils.tokenizer import CharTokenizer
-from utils.constants import (RAW_DATA_PATH, 
+from constants import (RAW_DATA_PATH, 
                              TOKENIZER_PATH,
                              PROCESSED_DATA_PATH,
                              PROCESSED_PATH)

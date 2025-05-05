@@ -33,7 +33,7 @@ if __name__=="__main__":
     from scripts.b_train import Trainer
     from scripts.c_compare_experiments import compare_experiments
     from utils.tokenizer import CharTokenizer
-    from utils.constants import (PROCESSED_DATA_PATH,
+    from constants import (PROCESSED_DATA_PATH,
                              SAVE_PATH)
     from utils.dataset import ShakespeareDataset
     from utils.config import Config

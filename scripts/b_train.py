@@ -9,7 +9,7 @@ from utils.config import Config
 from utils.plot_metrics import plot_metrics
 import pandas as pd
 import time
-from utils.constants import (PROCESSED_DATA_PATH,
+from constants import (PROCESSED_DATA_PATH,
                              SAVE_PATH,
                              TOKENIZER_PATH)
 
