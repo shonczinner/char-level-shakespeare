@@ -1,7 +1,6 @@
 import argparse
 import torch
 import os
-from torch.utils.data import DataLoader, Subset
 from utils.tokenizer import CharTokenizer
 from utils.dataset import ShakespeareDataset, get_loaders
 from models import get_model
@@ -16,11 +15,18 @@ from constants import (PROCESSED_DATA_PATH,
 
 
 class Trainer:
-    def __init__(self, dataset, config: Config, device):
+    def __init__(self, data, config: Config, device):
         self.config = config
         self.device = device
 
-        self.train_loader, self.val_loader, self.test_loader = get_loaders(dataset,config.batch_size,config.train_pct,config.val_pct)
+        self.train_loader, self.val_loader, self.test_loader = get_loaders(
+            data,
+            config.max_seq_len,
+            config.max_seq_len//2,
+            config.batch_size,
+            config.train_pct,
+            config.val_pct
+        )
 
         self.save_path =  os.path.join(SAVE_PATH, config.model_type)
         os.makedirs(self.save_path, exist_ok=True)
@@ -159,8 +165,6 @@ if __name__ == "__main__":
     tokens = [int(x) for x in tokens_s.split(',')]
     data = torch.tensor(tokens, dtype=torch.long, device=device)
 
-    dataset = ShakespeareDataset(data,config.max_seq_len,config.max_seq_len//2)
-
-    trainer = Trainer(dataset,config, device)
+    trainer = Trainer(data,config, device)
     trainer.train()
     trainer.evaluate()

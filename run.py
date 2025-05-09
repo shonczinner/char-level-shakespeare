@@ -49,7 +49,6 @@ if __name__=="__main__":
     #device=  'cpu'
 
     data = torch.tensor(tokens, dtype=torch.long, device=device)
-    dataset = ShakespeareDataset(data,config.max_seq_len,config.max_seq_len//2)
 
     # train models
 
@@ -57,7 +56,7 @@ if __name__=="__main__":
         print(f"training {model_type}")
         config.model_type = model_type
         config.vocab_size = tokenizer.vocab_size
-        trainer = Trainer(dataset,config, device)
+        trainer = Trainer(data,config, device)
         trainer.train()
         trainer.evaluate()
         
