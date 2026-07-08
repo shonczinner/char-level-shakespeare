@@ -84,6 +84,11 @@ def compare_experiments(model_types):
     summary_path = os.path.join(SUMMARY_PATH, "model_comparison.csv")
     summary_df.to_csv(summary_path, index=False)
 
+    # save the summary dataframe as a markdown table in a .md file
+    summary_md_path = os.path.join(SUMMARY_PATH, "model_comparison.md")
+    with open(summary_md_path, "w") as f:
+        f.write(summary_df.to_markdown(index=False))
+
     print(summary_df)
 
 if __name__ == "__main__":
