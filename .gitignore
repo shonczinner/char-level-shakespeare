@@ -3,4 +3,5 @@ __pycache__/
 experiments/
 data/processed/
 *.onnx
+*.onnx.data
 *.json
