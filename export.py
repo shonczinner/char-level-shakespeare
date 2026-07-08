@@ -1,6 +1,6 @@
 import torch
 import os
-
+import json
 from models import get_model
 from utils.tokenizer import CharTokenizer
 from utils.config import Config
@@ -16,6 +16,7 @@ config = Config.load(model_folder)
 
 # Load model
 model = get_model(config)
+model.eval()
 
 model_path = os.path.join(model_folder,"model.pth")
 model.load_state_dict(torch.load(model_path, map_location='cpu'))
@@ -23,24 +24,22 @@ print("Model loaded from:",model_path)
 # Create a dummy input matching your model's input shape
 # Let's assume character-level input with shape [1, seq_len]
 dummy_input = torch.zeros(1, 1).long()  # adjust if your model takes different shape
-dummy_hidden = torch.zeros(config.num_layers, 1, config.hidden_dim)
+dummy_hidden = model(dummy_input)[1].detach()  # Get the initial hidden state from the model
 
 # Export to ONNX with hidden state
 torch.onnx.export(
     model,
-    (dummy_input, dummy_hidden),  # Pass both input and hidden state
+    (dummy_input, dummy_hidden),
     "model.onnx",
-    input_names=["input", "hidden"],  # Input names for both input and hidden state
-    output_names=["output", "hidden"],  # Output names for both logits and hidden state
-    dynamic_axes={
-        "input": {1: "seq_len"},  # Make seq_len dynamic
-    },
-    opset_version=11
+    input_names=["input", "hidden"],
+    output_names=["output", "hidden"],
+    dynamic_shapes=(
+        {1: "seq_len"},
+        None,
+    ),
+    opset_version=18,
 )
 #################
-
-
-import json
 tokenizer = CharTokenizer.load(TOKENIZER_PATH)
 
 chars = tokenizer.chars

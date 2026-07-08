@@ -1,13 +1,21 @@
 import torch.nn as nn
 import torch
+from dataclasses import dataclass
+
+@dataclass
+class TransformerConfig:
+    embed_dim: int = 256
+    hidden_dim: int = 128
+    num_layers: int = 2
+    nhead: int = 2
 
 class TransformerModel(nn.Module):
-    def __init__(self, config):
+    def __init__(self, vocab_size, max_seq_len, config):
         super().__init__()
-        self.max_seq_len = config.max_seq_len
+        self.max_seq_len = max_seq_len
 
-        self.embed = nn.Embedding(config.vocab_size, config.hidden_dim)
-        self.pos_emb = nn.Embedding(config.max_seq_len, config.hidden_dim)
+        self.embed = nn.Embedding(vocab_size, config.hidden_dim)
+        self.pos_emb = nn.Embedding(max_seq_len, config.hidden_dim)
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=config.hidden_dim,
@@ -17,7 +25,7 @@ class TransformerModel(nn.Module):
         )
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=config.num_layers)
 
-        self.fc = nn.Linear(config.hidden_dim, config.vocab_size)
+        self.fc = nn.Linear(config.hidden_dim, vocab_size)
 
     def forward(self, x):
         # x: [batch, seq_len]

@@ -6,6 +6,7 @@ from utils.dataset import ShakespeareDataset, get_loaders
 from models import get_model
 from utils.config import Config
 from utils.plot_metrics import plot_metrics
+from utils.model_utils import count_parameters
 import pandas as pd
 import time
 from constants import (PROCESSED_DATA_PATH,
@@ -15,7 +16,7 @@ from constants import (PROCESSED_DATA_PATH,
 
 
 class Trainer:
-    def __init__(self, data, config: Config, device):
+    def __init__(self, data, config: Config, device, new=True):
         self.config = config
         self.device = device
 
@@ -33,11 +34,14 @@ class Trainer:
         self.model_path = os.path.join(self.save_path, "model.pth")
 
         self.model = get_model(self.config).to(device)
+        self.num_parameters = count_parameters(self.model)
+        print(f"Model parameters: {self.num_parameters:,}")
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config.learning_rate)
         self.loss_fn = torch.nn.CrossEntropyLoss()
 
         self.train_losses, self.val_losses, self.train_accs, self.val_accs,self.compute = [], [], [], [],[]
-        self.load_model()
+        if not new:
+            self.load_model()
 
 
     def load_model(self):
@@ -51,6 +55,8 @@ class Trainer:
             self.train_accs = metrics["train_accs"].tolist()
             self.val_accs = metrics["val_accs"].tolist()
             self.compute = metrics["compute"].tolist()
+            self.num_parameters = metrics["num_parameters"].tolist()[0]
+            print(f"Model parameters: {self.num_parameters:,}")
 
             print("Model loaded from",self.model_path)
 
@@ -61,7 +67,8 @@ class Trainer:
             "val_losses": self.val_losses,
             "train_accs": self.train_accs,
             "val_accs": self.val_accs,
-            "compute":self.compute
+            "compute":self.compute,
+            "num_parameters": self.num_parameters
             })
         metrics.to_csv(os.path.join(self.save_path, "metrics.csv"), index=False)
 

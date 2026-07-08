@@ -1,14 +1,14 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import numpy as np
 
 from constants import SAVE_PATH, SUMMARY_PATH
 
 def compare_experiments(model_types):
+    summary = []
     # Generate color map
-    colors = cm.get_cmap('tab10', len(model_types))
+    colors = plt.colormaps['tab10']
     model_colors = {model: colors(i) for i, model in enumerate(model_types)}
 
     # Initialize figures and axes
@@ -31,8 +31,20 @@ def compare_experiments(model_types):
         train_accs = metrics["train_accs"].tolist()
         val_accs = metrics["val_accs"].tolist()
         compute = metrics["compute"].tolist()
+        num_parameters = metrics["num_parameters"].tolist()[0]
         epochs = list(range(1, len(train_losses) + 1))
         color = model_colors[model_type]
+
+        best_val_loss = min(val_losses)
+        best_val_accuracy = max(val_accs)
+        total_compute = compute[-1]
+        summary.append({
+            "model": model_type,
+            "parameters": num_parameters,
+            "best_val_loss": best_val_loss,
+            "best_val_accuracy": best_val_accuracy,
+            "total_compute": total_compute,
+        })
 
         # Loss vs Epoch
         ax_loss_epoch.plot(epochs, train_losses, label=f'{model_type} - Train', linestyle='-', color=color)
@@ -66,6 +78,13 @@ def compare_experiments(model_types):
         ax.figure.tight_layout()
         ax.figure.savefig(os.path.join(SUMMARY_PATH,filename))
         plt.close(ax.figure)
+
+    summary_df = pd.DataFrame(summary)
+
+    summary_path = os.path.join(SUMMARY_PATH, "model_comparison.csv")
+    summary_df.to_csv(summary_path, index=False)
+
+    print(summary_df)
 
 if __name__ == "__main__":
     import argparse

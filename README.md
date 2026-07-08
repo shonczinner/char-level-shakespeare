@@ -30,3 +30,4 @@ torch
 numpy
 matplotlib
 pandas
+onnxscript

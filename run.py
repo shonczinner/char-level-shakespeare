@@ -1,74 +1,103 @@
 import argparse
 import gc
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Train sequence models on Shakespeare data.")
+import torch
+from dataclasses import replace
 
-    parser.add_argument(
-    "--model_types",
-    nargs="+",
-    default=["rnn", "cnn", "transformer","gru","lstm"],
-    help="List of model types to compare (default: rnn cnn transformer)"
+from scripts.a_tokenize_data import tokenize_data
+from scripts.b_train import Trainer
+from scripts.c_compare_experiments import compare_experiments
+from utils.config import Config
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Train sequence models on Shakespeare data."
     )
 
-    parser.add_argument('--epochs', type=int, default=20)
-    parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--max_seq_len', type=int, default=128)
-    parser.add_argument('--learning_rate', type=float, default=3e-4)
+    parser.add_argument(
+        "--model_types",
+        nargs="+",
+        default=[
+            "rnn",
+            "cnn",
+            "transformer",
+            "gru",
+            "lstm",
+        ],
+    )
 
-    parser.add_argument('--embed_dim', type=int, default=256)
-    parser.add_argument('--hidden_dim', type=int, default=512)
-    parser.add_argument('--num_layers', type=int, default=2)
+    for field in Config.__dataclass_fields__.values():
+        parser.add_argument(
+            f"--{field.name}",
+            type=field.type,
+            default=None,
+        )
 
-    parser.add_argument('--kernel_size', type=int, default=5)
-    parser.add_argument('--nhead', type=int, default=2)
-    
     return parser.parse_args()
 
 
-if __name__=="__main__":
-    import torch
-
-    from scripts.a_tokenize_data import tokenize_data
-    from scripts.b_train import Trainer
-    from scripts.c_compare_experiments import compare_experiments
-    from utils.tokenizer import CharTokenizer
-    from constants import (PROCESSED_DATA_PATH,
-                             SAVE_PATH)
-    from utils.dataset import ShakespeareDataset
-    from utils.config import Config
-
+def load_config():
+    config = Config()
     args = parse_args()
-    args_dict = vars(args)
-    model_types = args_dict.pop("model_types", None)  # Safely removes it if it exists
-    config = Config(**args_dict)
 
-    tokenizer, tokens = tokenize_data()
+    for key, value in vars(args).items():
+        if value is not None and hasattr(config, key):
+            setattr(config, key, value)
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    #device=  'cpu'
+    model_types = args.model_types
 
-    data = torch.tensor(tokens, dtype=torch.long, device=device)
+    return config, model_types
 
-    # train models
+
+def train_models(data, tokenizer, model_types, config, device):
+    config = replace(config, vocab_size=tokenizer.vocab_size)
 
     for model_type in model_types:
-        print(f"training {model_type}")
-        config.model_type = model_type
-        config.vocab_size = tokenizer.vocab_size
-        trainer = Trainer(data,config, device)
+        print(f"Training {model_type}")
+
+        model_config = replace(
+            config,
+            model_type=model_type,
+        )
+
+        trainer = Trainer(
+            data,
+            model_config,
+            device,
+        )
+
         trainer.train()
         trainer.evaluate()
-        
-        # Clear CUDA memory
+
         del trainer
         torch.cuda.empty_cache()
         gc.collect()
 
-    # plot all metrics
+
+def main():
+    config, model_types = load_config()
+
+    tokenizer, tokens = tokenize_data()
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    data = torch.tensor(
+        tokens,
+        dtype=torch.long,
+        device=device,
+    )
+
+    train_models(
+        data,
+        tokenizer,
+        model_types,
+        config,
+        device,
+    )
+
     compare_experiments(model_types)
 
 
-    
-
-    
+if __name__ == "__main__":
+    main()

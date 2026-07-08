@@ -1,13 +1,20 @@
 import torch.nn as nn
+from dataclasses import dataclass
+
+@dataclass
+class GRUConfig:
+    embed_dim: int = 256
+    hidden_dim: int = 256
+    num_layers: int = 2
 
 class GRUModel(nn.Module):
-    def __init__(self, config):
+    def __init__(self, vocab_size, config):
         super().__init__()
-        self.embed = nn.Embedding(config.vocab_size, config.embed_dim)
+        self.embed = nn.Embedding(vocab_size, config.embed_dim)
 
         self.gru = nn.GRU(config.embed_dim, config.hidden_dim, config.num_layers, batch_first=True)
 
-        self.fc = nn.Linear(config.hidden_dim, config.vocab_size)
+        self.fc = nn.Linear(config.hidden_dim, vocab_size)
 
     def forward(self, x, hidden=None):
         # x: [batch, seq_len]

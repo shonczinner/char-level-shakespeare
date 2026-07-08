@@ -1,6 +1,13 @@
 import torch
 import torch.nn as nn
+from dataclasses import dataclass
 
+@dataclass
+class CNNConfig:
+    embed_dim: int = 256
+    hidden_dim: int = 256
+    num_layers: int = 2
+    kernel_size: int = 5
 
 class Chomp1d(nn.Module):
     def __init__(self, chomp_size):
@@ -37,13 +44,13 @@ class CNN(nn.Module):
         return x
 
 class CNNModel(nn.Module):
-    def __init__(self, config):
+    def __init__(self, vocab_size, config):
         super().__init__()
-        self.embed = nn.Embedding(config.vocab_size, config.embed_dim)
+        self.embed = nn.Embedding(vocab_size, config.embed_dim)
 
         self.cnn = CNN(config.embed_dim,config.hidden_dim,config.kernel_size,config.num_layers)
 
-        self.fc = nn.Linear(config.hidden_dim, config.vocab_size)
+        self.fc = nn.Linear(config.hidden_dim, vocab_size)
 
     def forward(self, x):
         # x: [batch, seq_len]
